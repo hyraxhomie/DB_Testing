@@ -24,6 +24,7 @@ A comprehensive benchmarking framework for testing and comparing performance acr
 ## Prerequisites
 
 - Python 3.8 or higher
+- Node.js 18+ and npm (for TypeScript implementation)
 - Docker and Docker Compose (for running databases)
 - pip (Python package manager)
 
@@ -65,6 +66,12 @@ A comprehensive benchmarking framework for testing and comparing performance acr
 5. **Configure database connections** (optional):
    
    Edit `config/databases.yaml` to match your database setup if you're not using Docker Compose defaults.
+
+6. **Install TypeScript dependencies** (optional, for TypeScript implementation):
+   ```bash
+   npm install
+   npm run build
+   ```
 
 ## Usage
 
@@ -149,8 +156,9 @@ After running benchmarks, results are saved in the `results/` directory:
 
 ### Viewing Results
 
-Results can be analyzed using the included analyzer or imported into your preferred data analysis tool:
+Results can be analyzed using the included analyzer (available in both Python and TypeScript) or imported into your preferred data analysis tool:
 
+**Python:**
 ```python
 from src.results import ResultsAnalyzer
 import pandas as pd
@@ -162,13 +170,35 @@ df = pd.read_csv('results/benchmark_results.csv')
 print(df.groupby(['operation', 'database'])['duration_ms'].describe())
 ```
 
+**TypeScript:**
+```typescript
+import { ResultsAnalyzer, BenchmarkResult } from './ts-src';
+import * as fs from 'fs';
+
+// Load results from JSON
+const results: BenchmarkResult[] = JSON.parse(
+  fs.readFileSync('results/benchmark_results.json', 'utf-8')
+);
+
+// Create analyzer
+const analyzer = new ResultsAnalyzer(results);
+
+// Get summary statistics
+const stats = analyzer.getSummaryStats();
+
+// Export summary
+analyzer.exportSummary('results/summary.json');
+```
+
+See `ts-src/README.md` for more details on the TypeScript implementation.
+
 ## Project Structure
 
 ```
 DB_Testing/
 ├── config/
 │   └── databases.yaml          # Database connection configurations
-├── src/
+├── src/                        # Python implementation
 │   ├── database/               # Database connection implementations
 │   │   ├── base.py            # Base classes and interfaces
 │   │   ├── relational.py      # Relational DB implementations
@@ -176,12 +206,23 @@ DB_Testing/
 │   ├── benchmarks/             # Benchmark test suites
 │   │   ├── relational_benchmarks.py
 │   │   └── graph_benchmarks.py
-│   └── results/                # Results analysis
+│   └── results/                # Results analysis (Python)
 │       └── analyzer.py
+├── ts-src/                     # TypeScript implementation
+│   ├── types/                  # TypeScript type definitions
+│   │   └── benchmark.ts       # Benchmark result types
+│   ├── results/                # Results analysis (TypeScript)
+│   │   ├── analyzer.ts        # ResultsAnalyzer class
+│   │   └── index.ts           # Module exports
+│   ├── index.ts                # Main TypeScript exports
+│   ├── example.ts              # Usage examples
+│   └── README.md               # TypeScript implementation docs
 ├── results/                    # Generated results (gitignored)
 ├── docker-compose.yml          # Docker setup for databases
 ├── requirements.txt            # Python dependencies
-├── run_benchmarks.py           # Main benchmark runner
+├── package.json                # Node.js/TypeScript dependencies
+├── tsconfig.json               # TypeScript configuration
+├── run_benchmarks.py           # Main benchmark runner (Python)
 └── README.md
 ```
 
