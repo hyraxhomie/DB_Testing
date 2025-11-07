@@ -6,16 +6,18 @@ import sys
 from pathlib import Path
 from typing import Dict, Any, List
 
-# Add src to path
-sys.path.insert(0, str(Path(__file__).parent / 'src'))
+# Add project root to path for imports
+project_root = Path(__file__).parent
+sys.path.insert(0, str(project_root))
 
-from database import (
+# Import from src package
+from src.database import (
     PostgreSQLConnection, MySQLConnection, SQLiteConnection,
     Neo4jConnection, ArangoDBConnection,
     BenchmarkRunner
 )
-from benchmarks import RelationalBenchmarks, GraphBenchmarks
-from results import ResultsAnalyzer
+from src.benchmarks import RelationalBenchmarks, GraphBenchmarks
+from src.results import ResultsAnalyzer
 
 
 def load_config(config_path: str = 'config/databases.yaml') -> Dict[str, Any]:

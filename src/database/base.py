@@ -90,7 +90,8 @@ class BenchmarkRunner:
             records_affected=records_affected,
             error=error
         )
-        
+        if error:
+            print(f"Error running benchmark {operation_name}: {error}")
         self.results.append(result)
         return result
     

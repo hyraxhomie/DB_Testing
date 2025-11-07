@@ -203,19 +203,21 @@ class SQLiteConnection(DatabaseConnection):
         cursor = self.connection.cursor()
         try:
             if params:
-                # SQLite uses ? placeholders, but we'll use named placeholders
-                # Convert query to use ? and params to tuple/list
+                # SQLite uses ? placeholders, not %s
+                # Convert %s to ? and params to tuple/list
                 if isinstance(params, dict):
-                    # Replace named placeholders with ? and maintain order
-                    param_list = []
-                    query_processed = query
-                    for key, value in params.items():
-                        query_processed = query_processed.replace(f':{key}', '?')
-                        query_processed = query_processed.replace(f'%({key})s', '?')
-                        param_list.append(value)
+                    # Convert dict to tuple/list in order
+                    param_list = list(params.values())
+                    # Replace %s with ? for SQLite
+                    query_processed = query.replace('%s', '?')
                     cursor.execute(query_processed, param_list)
+                elif isinstance(params, (list, tuple)):
+                    # Replace %s with ? for SQLite
+                    query_processed = query.replace('%s', '?')
+                    cursor.execute(query_processed, params)
                 else:
-                    cursor.execute(query, params)
+                    query_processed = query.replace('%s', '?')
+                    cursor.execute(query_processed, params)
             else:
                 cursor.execute(query)
             
